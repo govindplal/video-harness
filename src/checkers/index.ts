@@ -9,6 +9,7 @@ import type { Project } from "../spec/schema.ts";
 import { frameNotEmpty } from "./frameNotEmpty.ts";
 import { repeatable } from "./repeatable.ts";
 import { shotLength } from "./shotLength.ts";
+import { groundPresent, subjectVisible } from "./idpass.ts";
 import { loadConfig, type CheckResult, type Checker, type ShotArtifacts } from "./types.ts";
 
 export type { CheckResult } from "./types.ts";
@@ -17,6 +18,8 @@ export type { CheckResult } from "./types.ts";
 export const CHECKERS: { name: string; run: Checker }[] = [
   { name: "shot-length", run: shotLength },
   { name: "frame-not-empty", run: frameNotEmpty },
+  { name: "subject-visible", run: subjectVisible },
+  { name: "ground-present", run: groundPresent },
   { name: "repeatable", run: repeatable },
 ];
 
@@ -35,6 +38,8 @@ export function shotArtifacts(project: Project, shotId: string, preview: boolean
     framesDir: join(stageDir("render", keys.render), render.framesDir),
     videoFile: join(stageDir("encode", keys.encode), encode.file),
     animateBlend: join(stageDir("animate", keys.animate), animate.blend),
+    idsDir: render.idsDir ? join(stageDir("render", keys.render), render.idsDir) : undefined,
+    idSize: render.idSize,
   };
 }
 

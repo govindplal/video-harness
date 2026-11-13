@@ -20,8 +20,11 @@ export const repeatable: Checker = async ({ project, art, config, preview }) => 
     const job = (outDir: string): Record<string, unknown> => ({
       blend: art.animateBlend, outDir, engine: resolveEngine(project), samples: project.render.samples, scale, frames: [frame],
     });
-    await blender.runScript("render", job(join(dir, "a")), { timeoutMs: 30 * 60_000 });
-    await blender.runScript("render", job(join(dir, "b")), { timeoutMs: 30 * 60_000 });
+    // Two separate Blender processes, in parallel: independent runs, half the wall time.
+    await Promise.all([
+      blender.runScript("render", job(join(dir, "a")), { timeoutMs: 30 * 60_000 }),
+      blender.runScript("render", job(join(dir, "b")), { timeoutMs: 30 * 60_000 }),
+    ]);
     const hashA = hashFile(join(dir, "a", name));
     const hashB = hashFile(join(dir, "b", name));
     let storedMatches: boolean | null = null;

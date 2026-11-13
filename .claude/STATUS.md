@@ -1,22 +1,20 @@
 # Status (rewrite at every checkpoint; snapshot, not a log; under ~40 lines)
 
-Updated: 2026-11-14 (morning)
+Updated: 2026-11-14
 
 ## Now
-- **M0 done** (doctor passes 6/6). **M1 done and verified**: `projects/m1-rooftops` -> 5.000 s, 120 frames, 1080p; checks shot-length / frame-not-empty / repeatable all PASS; e2e `tests/e2e/m1.test.ts` 5/5; unit 32/32. Deliverables in `docs/milestones/M1.md` + `projects/m1-rooftops/out/` (mp4, contact.png, report.json). Eyeballed.
-- **M2 started** (not runnable yet): car asset chosen and in repo (`assets/vehicles/coupe-green`: Quaternius CC0 sports car, recorded in assets/ASSETS.md; measured: forward is -Y, wheel radius 0.28, wheel meshes named in vehicle.json). Written but NEVER RUN: `toolscripts/blender/toon.py` (toon material, window-wall material, Freestyle outlines, sun, sky). Nothing else for M2 exists yet.
-- Owner away, pre-approved M0-M2 unattended ("until weekly quota is 85%"; I cannot see quota).
+- **M0 done, M1 done** (committed b4c4c11). M1 deliverables in docs/milestones/M1.md.
+- **M2 code complete, not yet rendered/verified.** Written and smoke-tested with single frames (dev-street project): street set builder (sets/street.py), car placement (place_assets.py), animate.py (drift, chase/track/orbit/top-down cameras, smoke puffs, tyre marks, speed lines, motion blur), ID pass (id_pass.py), checkers subject-visible/ground-present (src/checkers/idpass.ts), sound (src/adapters/audio.ts, src/pipeline/sound.ts), assemble with music bed, subtitles, loudnorm. Spec: projects/m2-street (3 shots, 6.5 s). e2e: tests/e2e/m2.test.ts (never run).
+- **The full M2 render was killed by Claude Code for low system memory** (not a harness error). Cache state: chase-01 animated, drift-02/top-03 built. Rerun `node src/cli/main.ts render m2-street` (resumes from cache) only when memory allows; consider closing other apps first.
+- Measured: set renders ~13 s/frame at 1080p/8 spp + ~100 s first-frame compile per Blender launch (OpenGL and Vulkan alike; --gpu-compilation-subprocesses does not help).
 
-## Next (M2: car on a 3D street) - do in this order, test each piece with a small render
-1. `assets/locations/hill-street/location.json` (kind "set", ground plane, named paths lane-right / junction-right, marks, drivable polygons) + generic `toolscripts/blender/sets/street.py` builder called from build_set.py for kind "set". Include palette[time] in the build key (src/pipeline/shot.ts shotKeys) and keep render.py's shadow/raytracing off only for painted (unlit) scenes (scene["harness_unlit"]).
-2. `place_assets.py` (import glb, rig root empty `actor.<name>`, wheel pivots re-centred, recolour via colourSlots, toon materials) as stage 3.
-3. `motion.py` + extend `animate.py`: path sampling, drift slip, wheel spin/steer, cameras chase/track/orbit/top-down, smoke puffs (python-keyed billboards), tyre-mark ribbons, motion blur.
-4. `id_pass.py` (Workbench flat object colours, actor / ground / other, effects hidden) in the render stage -> checkers subject-visible and ground-present (config/checks.json has thresholds).
-5. Sound: SoX cue synthesis + ffmpeg mix per shot, music bed "drive-pulse", subtitles + loudnorm in assemble (assemble currently refuses subtitles/music/sound with a clear error).
-6. 3-shot spec (chase, side drift, top-down) + `tests/e2e/m2.test.ts` + `docs/milestones/M2.md`.
+## Next
+1. `render m2-street`, then `check`, `assemble`, `node --test tests/e2e/m2.test.ts`; eyeball contact.png and the mp4; write docs/milestones/M2.md; commit.
+2. Re-run M1 e2e (render/build scripts changed, so M1 re-renders ~12 min).
+3. Smoke puffs: verify the 0.2 disc threshold looks round (last frame showed square puffs at 0.39).
 
-## Open questions / blocked on the user
-- None. Reference video (car.mp4) has characters and a painted look; v1 scope is car + street only (spec).
-
-## Learned this project (all recorded in CLAUDE.md Gotchas)
-- Krita modal dialog hang; cache race; Blender PNG metadata; per-layer parallax measuring.
+## Gotchas found in M2 (add to CLAUDE.md)
+- Object Info Color/Alpha fades and Attribute(Object) custom props were unreliable for per-object alpha in EEVEE here; smoke now fades by scale with constant-alpha material.
+- Track-To constraint billboards did not render; puffs are now keyed to face the camera per frame.
+- Freestyle draws lines through geometry below the ground: building boxes now follow the ground plane.
+- Freestyle lineset attr is `collection_negation = "EXCLUSIVE"` (not exclude_collection).

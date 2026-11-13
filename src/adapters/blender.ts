@@ -10,6 +10,12 @@ import { run, runOk, ToolError, lastLine } from "./proc.ts";
 
 const PY_EXIT = 3;
 
+/** HARNESS_COMPILE_SUBPROCESSES overrides; 0 disables. Default: measured below in docs/Gotchas. */
+function defaultCompileSubprocesses(): number {
+  const e = process.env.HARNESS_COMPILE_SUBPROCESSES;
+  return e === undefined ? 0 : Number(e);
+}
+
 export async function version(): Promise<string> {
   const r = await runOk("blender", toolExe("blender"), ["--factory-startup", "-b", "--version"], { timeoutMs: 120_000 });
   const m = /Blender\s+(\d+\.\d+\.\d+)/.exec(r.stdout.toString("utf8"));
@@ -29,7 +35,7 @@ export interface ScriptResult<T> {
 export async function runScript<T = Record<string, unknown>>(
   script: string,
   job: Record<string, unknown>,
-  opts: { blendFile?: string; timeoutMs?: number; gpuBackend?: "opengl" | "vulkan" } = {},
+  opts: { blendFile?: string; timeoutMs?: number; gpuBackend?: "opengl" | "vulkan"; compileSubprocesses?: number } = {},
 ): Promise<ScriptResult<T>> {
   const jobsDir = join(CACHE_DIR, "jobs");
   mkdirSync(jobsDir, { recursive: true });
@@ -42,6 +48,9 @@ export async function runScript<T = Record<string, unknown>>(
   const args = ["--factory-startup", "-b"];
   if (opts.blendFile) args.push(opts.blendFile);
   if (opts.gpuBackend) args.push("--gpu-backend", opts.gpuBackend);
+  // Parallel shader compilation (OpenGL only). EEVEE compiles ~100 s of shaders on the first frame of every launch.
+  const subs = opts.compileSubprocesses ?? defaultCompileSubprocesses();
+  if (subs > 0) args.push("--gpu-compilation-subprocesses", String(subs));
   args.push("--python-exit-code", String(PY_EXIT), "-P", join(TOOLSCRIPTS_DIR, "blender", `${script}.py`), "--", jobPath);
 
   const r = await run(toolExe("blender"), args, { timeoutMs: opts.timeoutMs ?? 30 * 60_000 });

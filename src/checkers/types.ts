@@ -26,6 +26,8 @@ export interface ShotArtifacts {
   videoFile: string;
   encode: EncodeMeta;
   animateBlend: string;
+  idsDir?: string;
+  idSize?: [number, number];
 }
 
 export interface CheckContext {

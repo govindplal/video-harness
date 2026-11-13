@@ -1,0 +1,10 @@
+import { loadProject } from "./src/spec/validate.ts";
+import { shotKeys, resolveEngine } from "./src/pipeline/shot.ts";
+import { stageDir } from "./src/planner/cache.ts";
+import * as blender from "./src/adapters/blender.ts";
+import { join } from "node:path";
+const [proj, scale, ...frames] = process.argv.slice(2);
+const p = loadProject(proj).project;
+const k = shotKeys(p, p.shots[0]);
+const r = await blender.runScript("render", { blend: join(stageDir("animate", k.animate), "scene.blend"), outDir: "C:/Users/govin/repos/portfolios/harness/.cache/probe-" + proj, engine: resolveEngine(p), samples: p.render.samples, scale: Number(scale), frames: frames.map(Number) }, { timeoutMs: 1800000 });
+console.log("per-frame s:", JSON.stringify(r.result.frameSeconds), "size", JSON.stringify(r.result.size));

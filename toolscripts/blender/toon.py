@@ -24,8 +24,8 @@ def mix_rgba(a, b, t):
 
 def shade_of(base, tint, amount=0.42):
     """Shadow colour: the base darkened and pulled toward the palette's shade tint."""
-    dark = (base[0] * 0.55, base[1] * 0.55, base[2] * 0.58, base[3])
-    return mix_rgba(dark, tint, amount * 0.5)
+    dark = (base[0] * 0.6, base[1] * 0.6, base[2] * 0.66, base[3])
+    return mix_rgba(dark, tint, amount)
 
 
 def mix_node(nt, data_type):
@@ -46,8 +46,9 @@ def _ramp(nt, steps):
     ramp.color_ramp.interpolation = "CONSTANT"
     els = ramp.color_ramp.elements
     steps = max(2, int(steps))
-    # Band edges sit low because Shader-to-RGB of a white diffuse under sun+ambient lands around 0.2-1.5.
-    edges = [0.0] + [0.14 + 0.30 * i / max(1, steps - 2) for i in range(steps - 1)]
+    # Shader-to-RGB of a white diffuse under sun (strength ~4) + ambient (~0.5) is roughly 0.3-0.5 on the shadow side
+    # (ambient only), ~0.6 at a grazing sun angle and >=1.2 facing the sun. Edges split those into bands.
+    edges = [0.0] + [0.55 + 0.40 * i / max(1, steps - 2) for i in range(steps - 1)]
     while len(els) < steps:
         els.new(0.5)
     for i, e in enumerate(edges[:steps]):
@@ -101,10 +102,13 @@ def window_wall_material(name, wall, shade_tint, window_dark, window_light, step
     s2r = nt.nodes.new("ShaderNodeShaderToRGB")
     ramp = _ramp(nt, steps)
 
+    # Object-space position (the building's origin is the centre of its base, dimensions baked into the mesh),
+    # so floors start at each building's own base even on a sloped street. Normals are world space; buildings are axis aligned.
     geo = nt.nodes.new("ShaderNodeNewGeometry")
+    coord = nt.nodes.new("ShaderNodeTexCoord")
     sep_p = nt.nodes.new("ShaderNodeSeparateXYZ")
     sep_n = nt.nodes.new("ShaderNodeSeparateXYZ")
-    nt.links.new(geo.outputs["Position"], sep_p.inputs["Vector"])
+    nt.links.new(coord.outputs["Object"], sep_p.inputs["Vector"])
     nt.links.new(geo.outputs["Normal"], sep_n.inputs["Vector"])
     absx = nt.nodes.new("ShaderNodeMath"); absx.operation = "ABSOLUTE"
     nt.links.new(sep_n.outputs["X"], absx.inputs[0])
@@ -208,7 +212,7 @@ def add_sun(scene, time_of_day):
     return ob
 
 
-def set_sky(scene, top, horizon, ambient=0.9):
+def set_sky(scene, top, horizon, ambient=0.45):
     """World gradient (horizon -> top). Also lights the scene a little, which fills the toon shadow side."""
     world = bpy.data.worlds.new("sky")
     world.use_nodes = True

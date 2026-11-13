@@ -90,6 +90,21 @@ def add_layer_plane(name, image_path, depth, plane_w, plane_h, z_center):
     return ob
 
 
+def build_scripted_set(job, scene, loc):
+    """A location built by a fixed builder script (toolscripts/blender/sets/<builder>.py) from its manifest params."""
+    import importlib
+    import toon
+    scene["harness_unlit"] = False
+    style, palette = job["style"], job["palette"]
+    toon.set_sky(scene, toon.hex_rgba(palette["skyTop"]), toon.hex_rgba(palette["skyBottom"]))
+    toon.add_sun(scene, job["time"])
+    builder = importlib.import_module("sets." + loc["set"]["builder"])
+    stats = builder.build(scene, loc["set"]["params"], palette, style["shadingSteps"], job["seed"], loc["ground"]["plane"])
+    toon.setup_outlines(scene, style["outlineWidth"], color=toon.hex_rgba(palette["shade"]))
+    bpy.ops.wm.save_as_mainfile(filepath=job["out"], compress=False)
+    hjob.write_result(job, {"stats": stats})
+
+
 def main():
     job = hjob.load_job()
     scene = clear_scene()
@@ -101,8 +116,10 @@ def main():
     scene.render.resolution_percentage = 100
 
     loc = job["location"]
-    if loc["kind"] != "painted":
-        raise NotImplementedError("set locations arrive in milestone 2")
+    if loc["kind"] == "set":
+        build_scripted_set(job, scene, loc)
+        return
+    scene["harness_unlit"] = True  # emission-only planes: the renderer can skip lighting passes
     paint = loc["paint"]
     ref_half_tan = math.tan(math.radians(loc["frame"]["referenceFov"]) / 2.0)
     px_scale = paint["width"] / 1920.0  # painted pixels per frame pixel at rest (frame is 1920 wide in paint space)

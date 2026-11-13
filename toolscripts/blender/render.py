@@ -40,10 +40,14 @@ def main():
     samples = int(job.get("samples", 16))
     if job["engine"] == "eevee":
         scene.eevee.taa_render_samples = samples
-        # Flat unlit layers need none of EEVEE's lighting passes; switch the expensive ones off.
-        for attr, val in (("use_raytracing", False), ("use_shadows", False), ("use_volumetric_shadows", False)):
-            if hasattr(scene.eevee, attr):
-                setattr(scene.eevee, attr, val)
+        if scene.get("harness_unlit", False):
+            # Flat unlit layers need none of EEVEE's lighting passes; switch the expensive ones off.
+            for attr, val in (("use_raytracing", False), ("use_shadows", False), ("use_volumetric_shadows", False)):
+                if hasattr(scene.eevee, attr):
+                    setattr(scene.eevee, attr, val)
+        else:
+            if hasattr(scene.eevee, "use_raytracing"):
+                scene.eevee.use_raytracing = False  # toon shading does not use reflections; keeps frames fast
     elif job["engine"] == "cycles":
         scene.cycles.device = "CPU"
         scene.cycles.samples = samples

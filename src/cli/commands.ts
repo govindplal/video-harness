@@ -12,6 +12,8 @@ import { buildShot, frameCount, publishShot, renderShot, shotCacheState, shotKey
 import { runChecks, type Report } from "../checkers/index.ts";
 import { hashObj, runStage } from "../planner/cache.ts";
 import * as ff from "../adapters/ffmpeg.ts";
+import * as audio from "../adapters/audio.ts";
+import { musicBed, shotSound, soundKey } from "../pipeline/sound.ts";
 
 // ----------------------------------------------------------------------------- helpers
 
@@ -181,10 +183,6 @@ register("status", "status <project>", async (args) => {
 register("assemble", "assemble <project>", async (args) => {
   const name = projectName(args, "assemble");
   const project = loadValid(name); // assemble refuses to run if validate fails
-  if (project.subtitles.length > 0) throw new HarnessError("subtitles are not implemented yet (milestone 2)", "subtitles");
-  if (project.music !== "none") throw new HarnessError("music is not implemented yet (milestone 2)", "music");
-  if (project.shots.some((s) => s.sound.length > 0)) throw new HarnessError("sound cues are not implemented yet (milestone 2)", "shots[].sound");
-
   // No output is final until every check passes.
   const report = await runChecks(project, name, project.shots.map((s) => s.id), false);
   if (!report.ok) {
@@ -193,14 +191,31 @@ register("assemble", "assemble <project>", async (args) => {
   }
 
   const encodes = project.shots.map((s) => shotKeys(project, s).encode);
-  const key = hashObj({ stage: "assemble", encodes, size: project.size, fps: project.fps, ffmpeg: lock().tools.ffmpeg.version });
+  const sounds = project.shots.map((s) => soundKey(s, project.fps));
+  const key = hashObj({ stage: "assemble", encodes, sounds, music: project.music, subtitles: project.subtitles, size: project.size, fps: project.fps, ffmpeg: lock().tools.ffmpeg.version, v: 2 });
+  const total = totalDuration(project);
   const run = await runStage<{ file: string; frames: number; seconds: number; width: number; height: number; fps: number }>("assemble", key, async (dir) => {
-    const files = project.shots.map((s) => {
-      const k = shotKeys(project, s).encode;
-      return join(CACHE_DIR, "stages", "encode", k, "shot.mp4");
-    });
+    const files = project.shots.map((s) => join(CACHE_DIR, "stages", "encode", shotKeys(project, s).encode, "shot.mp4"));
+    const silent = join(dir, "video.mp4");
+    await ff.concatCopy(files, silent, join(dir, "list.txt"));
+    // Audio: per-shot cues joined, music bed mixed under, then normalised to -14 LUFS / -1.5 dBTP.
+    const shotWavs: string[] = [];
+    for (const s of project.shots) { const r = await shotSound(s, project.fps); shotWavs.push(join(r.dir, r.meta.file)); }
+    const cues = join(dir, "cues.wav");
+    await audio.concatWav(shotWavs, cues);
+    const bed = await musicBed(project, total);
+    const mixed = join(dir, "mix.wav");
+    await audio.mixAt([{ file: cues, at: 0, db: 0 }, ...(bed ? [{ file: join(bed.dir, bed.meta.file), at: 0, db: -14 }] : [])], total, mixed);
+    const norm = join(dir, "norm.wav");
+    await audio.normalise(mixed, norm, -14, -1.5);
+    let srt: string | undefined;
+    if (project.subtitles.length > 0) {
+      srt = join(dir, "subs.srt");
+      const ts = (t: number): string => { const ms = Math.round(t * 1000); const p2 = (n: number, w = 2): string => String(n).padStart(w, "0"); return `${p2(Math.floor(ms / 3600000))}:${p2(Math.floor(ms / 60000) % 60)}:${p2(Math.floor(ms / 1000) % 60)},${p2(ms % 1000, 3)}`; };
+      writeFileSync(srt, project.subtitles.map((u, i) => [String(i + 1), `${ts(u.start)} --> ${ts(u.end)}`, u.text, ""].join("\n")).join("\n"));
+    }
     const out = join(dir, "final.mp4");
-    await ff.concatCopy(files, out, join(dir, "list.txt"));
+    await audio.mux(silent, norm, out, srt);
     const p = await ff.probe(out, true);
     return { file: "final.mp4", frames: p.frames ?? 0, seconds: p.duration, width: p.width ?? 0, height: p.height ?? 0, fps: p.fps ?? 0 };
   });

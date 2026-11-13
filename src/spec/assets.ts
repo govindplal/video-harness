@@ -35,9 +35,12 @@ export interface Location {
   times: string[];
   /** Painted locations: where the horizon sits in the final frame (0 top .. 1 bottom) and the lens the layers were placed for. */
   frame?: { horizon: number; referenceFov: number };
-  /** `horizon` is the painted horizon row as a fraction of the canvas height. */
+  /** Painted locations only. `horizon` is the painted horizon row as a fraction of the canvas height. */
   paint: { width: number; height: number; horizon: number; layers: PaintLayer[] };
+  /** Set locations only: a fixed builder script in toolscripts/blender/sets/ and its parameters. */
   set?: { builder: string; params?: Record<string, unknown> };
+  /** Ground height plane z = a*x + b*y + c, used to put actors and cameras on the ground. */
+  ground?: { plane: [number, number, number] };
   marks: Record<string, Mark>;
   paths: Record<string, NamedPath>;
   /** Drivable ground as polygons of [x, y] points. */

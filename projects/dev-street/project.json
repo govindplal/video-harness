@@ -1,0 +1,21 @@
+{
+  "name": "dev scratch: street set + car",
+  "size": "1920x1080",
+  "fps": 24,
+  "style": "anime-afternoon",
+  "seed": 3,
+  "subtitles": [],
+  "music": "none",
+  "render": { "engine": "auto", "samples": 8, "previewScale": 0.5 },
+  "shots": [
+    {
+      "id": "chase-test",
+      "duration": 2,
+      "location": { "name": "hill-street", "time": "afternoon" },
+      "camera": { "move": "chase", "follow": "car", "distance": 7, "height": 2.2, "lens": 50 },
+      "actors": [{ "asset": "coupe-green", "name": "car", "path": "lane-right", "speed": 22, "start": 40, "drift": 0.85, "action": "drive" }],
+      "effects": { "smoke": 0.8, "tyreMarks": 0.8, "motionBlur": 0.3 },
+      "sound": []
+    }
+  ]
+}

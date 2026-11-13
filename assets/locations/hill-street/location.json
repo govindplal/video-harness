@@ -1,0 +1,30 @@
+{
+  "kind": "set",
+  "description": "A San Francisco style hill street running downhill (+Y) with a cross street at y=90: two lanes each way, cable-car slot, sidewalks, rowhouses, trees and poles. Built by toolscripts/blender/sets/street.py.",
+  "times": ["afternoon", "golden", "noon"],
+  "set": {
+    "builder": "street",
+    "params": {
+      "yRange": [-70, 230],
+      "roadWidth": 12,
+      "sidewalk": 3,
+      "crossStreets": [{ "y": 90, "width": 12, "xEnd": 140 }],
+      "buildings": { "minWidth": 7.5, "maxWidth": 12, "minHeight": 9, "maxHeight": 17, "depth": 14, "gap": 0.35 },
+      "treeSpacing": 15,
+      "poleSpacing": 32,
+      "cableSlot": true
+    }
+  },
+  "ground": { "plane": [0, -0.12, 0] },
+  "marks": {
+    "street-high": { "position": [0.5, -50, 11.0], "target": [0.5, 40, -3.5] }
+  },
+  "paths": {
+    "lane-right": { "points": [[3.2, -60], [3.2, 200]], "drivable": true },
+    "lane-left": { "points": [[-3.2, 200], [-3.2, -60]], "drivable": true }
+  },
+  "drivable": [
+    [[-6, -70], [6, -70], [6, 230], [-6, 230]],
+    [[-6, 84], [140, 84], [140, 96], [-6, 96]]
+  ]
+}

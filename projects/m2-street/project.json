@@ -1,0 +1,39 @@
+{
+  "name": "M2 street drift",
+  "size": "1920x1080",
+  "fps": 24,
+  "style": "anime-afternoon",
+  "seed": 5,
+  "subtitles": [{ "start": 0.4, "end": 2.2, "text": "Kai, you're drifting wide" }],
+  "music": "drive-pulse",
+  "render": { "engine": "auto", "samples": 8, "previewScale": 0.5 },
+  "shots": [
+    {
+      "id": "chase-01",
+      "duration": 2.5,
+      "location": { "name": "hill-street", "time": "afternoon" },
+      "camera": { "move": "chase", "follow": "car", "distance": 7, "height": 2.2, "lens": 50 },
+      "actors": [{ "asset": "coupe-green", "name": "car", "path": "lane-right", "speed": 24, "start": 20, "drift": 0.0, "action": "drive" }],
+      "effects": { "motionBlur": 0.5, "speedLines": 0.4 },
+      "sound": [{ "cue": "engine", "at": 0, "level": "high" }, { "cue": "whoosh", "at": 1.2, "level": "mid" }]
+    },
+    {
+      "id": "drift-02",
+      "duration": 2,
+      "location": { "name": "hill-street", "time": "afternoon" },
+      "camera": { "move": "track", "follow": "car", "distance": 9, "height": 1.4, "side": -1, "lens": 40 },
+      "actors": [{ "asset": "coupe-green", "name": "car", "path": "lane-right", "speed": 20, "start": 60, "drift": 0.85, "action": "drive" }],
+      "effects": { "smoke": 0.8, "tyreMarks": 0.8, "motionBlur": 0.4 },
+      "sound": [{ "cue": "engine", "at": 0, "level": "high" }, { "cue": "screech", "at": 0.1, "level": "high" }]
+    },
+    {
+      "id": "top-03",
+      "duration": 2,
+      "location": { "name": "hill-street", "time": "afternoon" },
+      "camera": { "move": "top-down", "follow": "car", "height": 24, "lens": 45 },
+      "actors": [{ "asset": "coupe-green", "name": "car", "path": "lane-right", "speed": 20, "start": 130, "drift": 0.9, "action": "drive" }],
+      "effects": { "smoke": 0.9, "tyreMarks": 1.0 },
+      "sound": [{ "cue": "engine", "at": 0, "level": "mid" }, { "cue": "screech", "at": 0.2, "level": "high" }, { "cue": "thump", "at": 1.6, "level": "mid" }]
+    }
+  ]
+}
