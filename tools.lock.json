@@ -1,0 +1,67 @@
+{
+  "$comment": "Pinned tool versions. install-tools.sh reads this file. Never bump a version without the user asking. sha256 'null' means the source publishes no checksum; install-tools.sh records the first download's hash here (trust on first use).",
+  "platform": "windows-x64",
+  "tools": {
+    "blender": {
+      "version": "5.2.4",
+      "source": "https://www.blender.org/download/lts/",
+      "url": "https://download.blender.org/release/Blender5.2/blender-5.2.4-windows-x64.zip",
+      "sha256": "bbd78f8931dc940444da4ff2983374930f9f5c092ae0e330588e9760bb9d967c",
+      "sha256Source": "https://download.blender.org/release/Blender5.2/blender-5.2.4.sha256",
+      "archive": "zip",
+      "dir": "blender",
+      "exe": "blender/blender-5.2.4-windows-x64/blender.exe"
+    },
+    "krita": {
+      "version": "5.3.4.1",
+      "source": "https://krita.org/en/download/",
+      "url": "https://download.kde.org/stable/krita/5.3.4.1/krita-x64-5.3.4.1.zip",
+      "sha256": "eda810059a120171d30d4661c7684c73a8feb72b01ad5709531cbebe6b84d032",
+      "sha256Source": "https://download.kde.org/stable/krita/5.3.4.1/krita-x64-5.3.4.1.zip.sha256",
+      "archive": "zip",
+      "dir": "krita",
+      "exe": "krita/krita-x64-5.3.4.1/bin/krita.exe"
+    },
+    "inkscape": {
+      "version": "1.4.4",
+      "source": "https://inkscape.org/release/ (via winget manifest Inkscape.Inkscape 1.4.4)",
+      "url": "https://media.inkscape.org/dl/resources/file/inkscape-1.4.4_2026-05-05_dcaf3e7-x64.signed_xMx7DJV.msi",
+      "sha256": "2fa033e95113ae83d6430b2479e7e63e4266d0632a5b03f99ee3db9360e3b8b8",
+      "sha256Source": "winget manifest Inkscape.Inkscape 1.4.4",
+      "archive": "msi",
+      "dir": "inkscape",
+      "exe": "inkscape/PFiles64/Inkscape/bin/inkscape.com"
+    },
+    "sox": {
+      "version": "14.4.2",
+      "source": "system package manager: winget ChrisBagwell.SoX (portable zip, installed into .tools/ instead of user profile)",
+      "url": "https://sourceforge.net/projects/sox/files/sox/14.4.2/sox-14.4.2-win32.zip/download",
+      "sha256": "8072cc147cf1a3b3713b8b97d6844bb9389e211ab9e1101e432193fad6ae6662",
+      "sha256Source": "winget manifest ChrisBagwell.SoX 14.4.2",
+      "archive": "zip",
+      "dir": "sox",
+      "exe": "sox/sox-14.4.2/sox.exe"
+    },
+    "rhubarb": {
+      "version": "1.14.0",
+      "source": "https://github.com/DanielSWolf/rhubarb-lip-sync/releases/tag/v1.14.0",
+      "url": "https://github.com/DanielSWolf/rhubarb-lip-sync/releases/download/v1.14.0/Rhubarb-Lip-Sync-1.14.0-Windows.zip",
+      "sha256": "62fa416a8d5e382a3828ee4bef358ce520d0b4cabdeaea75a7ac266d098d1fe3",
+      "sha256Source": "none published; recorded on first download",
+      "archive": "zip",
+      "dir": "rhubarb",
+      "exe": "rhubarb/Rhubarb-Lip-Sync-1.14.0-Windows/rhubarb.exe"
+    },
+    "ffmpeg": {
+      "version": "9.0.2",
+      "source": "system package manager: winget Gyan.FFmpeg (already installed on this machine)",
+      "url": null,
+      "sha256": null,
+      "sha256Source": "managed by winget",
+      "archive": "system",
+      "dir": null,
+      "exe": "ffmpeg",
+      "probe": "ffprobe"
+    }
+  }
+}

@@ -1,0 +1,63 @@
+// Blender adapter: the only code that starts Blender.
+// Invocation (Blender 5.2 manual, Command Line Arguments): arguments run in order;
+// -b background, --factory-startup ignore user prefs, --python-exit-code N exit N on a Python exception,
+// -P script, then "--" and our own args (read from sys.argv in the script).
+import { mkdirSync, writeFileSync, readFileSync, existsSync } from "node:fs";
+import { join } from "node:path";
+import { createHash } from "node:crypto";
+import { CACHE_DIR, TOOLSCRIPTS_DIR, toolExe, lock } from "../paths.ts";
+import { run, runOk, ToolError, lastLine } from "./proc.ts";
+
+const PY_EXIT = 3;
+
+export async function version(): Promise<string> {
+  const r = await runOk("blender", toolExe("blender"), ["--factory-startup", "-b", "--version"], { timeoutMs: 120_000 });
+  const m = /Blender\s+(\d+\.\d+\.\d+)/.exec(r.stdout.toString("utf8"));
+  return m ? m[1] : "unknown";
+}
+
+export interface ScriptResult<T> {
+  result: T;
+  log: string;
+  ms: number;
+}
+
+/**
+ * Run toolscripts/blender/<script>.py with a job object. The script reads the job JSON,
+ * does its work and writes a result JSON to job.resultPath.
+ */
+export async function runScript<T = Record<string, unknown>>(
+  script: string,
+  job: Record<string, unknown>,
+  opts: { blendFile?: string; timeoutMs?: number; gpuBackend?: "opengl" | "vulkan" } = {},
+): Promise<ScriptResult<T>> {
+  const jobsDir = join(CACHE_DIR, "jobs");
+  mkdirSync(jobsDir, { recursive: true });
+  const body = JSON.stringify(job, null, 2);
+  const id = createHash("sha256").update(script + body).digest("hex").slice(0, 16);
+  const jobPath = join(jobsDir, `blender-${script}-${id}.json`);
+  const resultPath = join(jobsDir, `blender-${script}-${id}.result.json`);
+  writeFileSync(jobPath, JSON.stringify({ ...job, resultPath }, null, 2));
+
+  const args = ["--factory-startup", "-b"];
+  if (opts.blendFile) args.push(opts.blendFile);
+  if (opts.gpuBackend) args.push("--gpu-backend", opts.gpuBackend);
+  args.push("--python-exit-code", String(PY_EXIT), "-P", join(TOOLSCRIPTS_DIR, "blender", `${script}.py`), "--", jobPath);
+
+  const r = await run(toolExe("blender"), args, { timeoutMs: opts.timeoutMs ?? 30 * 60_000 });
+  const log = r.stdout.toString("utf8") + r.stderr;
+  if (r.code !== 0 || !existsSync(resultPath)) {
+    const pyErr = /(\w+Error: .*)/.exec(log)?.[1];
+    throw new ToolError("blender", r.code, log, `blender ${script} failed (exit ${r.code}): ${pyErr ?? lastLine(log)}`);
+  }
+  const result = JSON.parse(readFileSync(resultPath, "utf8")) as T;
+  return { result, log, ms: r.ms };
+}
+
+export function scriptHash(script: string): string {
+  return createHash("sha256").update(readFileSync(join(TOOLSCRIPTS_DIR, "blender", `${script}.py`))).digest("hex");
+}
+
+export function pinnedVersion(): string {
+  return lock().tools.blender.version;
+}
