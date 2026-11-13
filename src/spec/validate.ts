@@ -63,6 +63,73 @@ function semantic(p: Project, errs: SpecError[]): void {
   });
 }
 
+const rad = (d: number): number => (d * Math.PI) / 180;
+
+export interface Coverage { depth: number; left: number; right: number; up: number; down: number }
+
+/**
+ * How far (metres) the camera may move in each direction, or how much its frame may grow, before it shows past the
+ * painted edge of the nearest layer. Positive = room to spare; negative = the frame already shows past the paint.
+ * Painted layers are placed 1:1 with the frame for `referenceFov` (see toolscripts/blender/build_set.py).
+ */
+export function paintedMargins(loc: assets.Location, lens: number, roll: number): Coverage {
+  const depth = Math.min(...loc.paint.layers.map((l) => l.depth));
+  const s = loc.paint.width / 1920;
+  const aspect = loc.paint.height / loc.paint.width;
+  const a = Math.tan(rad(loc.frame?.referenceFov ?? 50) / 2) * s; // plane half width per metre of depth
+  const planeH = 2 * a * aspect;
+  const hz = loc.paint.horizon;
+  const fh = loc.frame?.horizon ?? 0.5;
+  // Frame half extents per metre of depth, enlarged to the bounding box of the rolled frame.
+  const hw = Math.tan(rad(lens) / 2);
+  const hh = hw * (9 / 16);
+  const r = Math.abs(rad(roll));
+  const bw = hw * Math.cos(r) + hh * Math.sin(r);
+  const bh = hw * Math.sin(r) + hh * Math.cos(r);
+  // Frame extent above/below the horizon row (the build step uses lens shift to put the horizon `fh` of the way down).
+  return {
+    depth,
+    left: depth * (a - bw),
+    right: depth * (a - bw),
+    up: depth * (planeH * hz - 2 * bh * fh),
+    down: depth * (planeH * (1 - hz) - 2 * bh * (1 - fh)),
+  };
+}
+
+function paintedCoverage(shot: Shot, at: string, loc: assets.Location, errs: SpecError[]): void {
+  const c = shot.camera;
+  const cat = `${at}.camera`;
+  if (!loc.frame) {
+    errs.push({ field: `${at}.location.name`, message: `painted location "${shot.location.name}" has no "frame" settings in its manifest` });
+    return;
+  }
+  const m = paintedMargins(loc, c.lens, c.roll);
+  const allow = 0.1 * c.shake; // shake moves the camera by up to ~0.03 m rms; keep a safety margin
+  if (m.left - allow < 0) {
+    errs.push({ field: `${cat}.lens`, message: `lens ${c.lens} deg with roll ${c.roll} deg shows past the painted edge of "${shot.location.name}" (nearest layer at ${m.depth} m); use a narrower lens or less roll` });
+    return;
+  }
+  if (c.move === "static" || c.move === "drift") {
+    const travel = c.move === "drift" ? c.speed * shot.duration : 0;
+    const room: Record<string, number> = { right: m.right, left: m.left, up: m.up, down: m.down, forward: Infinity, back: Infinity };
+    const dir = c.direction;
+    const limit = (room[dir] ?? 0) - allow;
+    if (travel > limit) {
+      errs.push({ field: `${cat}.speed`, message: `drifting ${dir} ${travel.toFixed(1)} m (${c.speed} m/s x ${shot.duration} s) passes the painted edge; this location allows at most ${Math.max(0, limit).toFixed(1)} m at lens ${c.lens} (nearest layer ${m.depth} m)` });
+    }
+    if (dir === "back") {
+      const d = c.speed * shot.duration;
+      const a = Math.tan(rad(loc.frame.referenceFov) / 2) * (loc.paint.width / 1920);
+      if ((m.depth + d) * Math.tan(rad(c.lens) / 2) > m.depth * a) {
+        errs.push({ field: `${cat}.speed`, message: `pulling back ${d.toFixed(1)} m widens the view past the painted edge` });
+      }
+    }
+  }
+  if (m.up - allow < 0 || m.down - allow < 0) {
+    errs.push({ field: `${cat}.lens`, message: `lens ${c.lens} deg shows past the top or bottom of the painted layers of "${shot.location.name}"` });
+  }
+}
+
 function checkShot(shot: Shot, at: string, errs: SpecError[]): void {
   const locName = shot.location.name;
   if (!assets.hasLocation(locName)) {
@@ -120,6 +187,8 @@ function checkShot(shot: Shot, at: string, errs: SpecError[]): void {
   if (c.move === "top-down" && !c.follow && c.from === undefined) errs.push({ field: `${cat}.from`, message: "top-down needs follow or from" });
   const cap = SPEED_CAPS[c.move];
   if (cap !== undefined && c.speed > cap) errs.push({ field: `${cat}.speed`, message: `${c.speed} exceeds the ${c.move} cap of ${cap}` });
+
+  if (loc.kind === "painted") paintedCoverage(shot, at, loc, errs);
 
   // Sound
   shot.sound.forEach((s, k) => {

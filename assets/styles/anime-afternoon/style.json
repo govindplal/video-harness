@@ -1,0 +1,43 @@
+{
+  "name": "anime-afternoon",
+  "description": "Saturated painted-anime look: deep blue sky, warm cream walls, hard cel shadows. Palette per time of day.",
+  "outlineWidth": 2.0,
+  "shadingSteps": 3,
+  "grain": 0.06,
+  "palette": {
+    "afternoon": {
+      "skyTop": "#2f6fe0",
+      "skyMid": "#5a9bf0",
+      "skyBottom": "#bfe0ff",
+      "sun": "#fff3c9",
+      "cloudLight": "#ffffff",
+      "cloudShade": "#a9c4ec",
+      "haze": "#cfe4fb",
+      "hills": ["#6f8fb8", "#5d7fae"],
+      "walls": ["#f3e6cf", "#efd9b8", "#e9c9a6", "#f2d4cf", "#d9e3ee", "#f5efe2"],
+      "roofs": ["#b9553d", "#8f4a3a", "#4b5568", "#6b7a8f"],
+      "trim": "#fff9ee",
+      "shade": "#2a3b6b",
+      "windowDark": "#2b4a82",
+      "windowLight": "#8fc0f2",
+      "tree": ["#3f7a3c", "#2f6334", "#5c9a45"]
+    },
+    "golden": {
+      "skyTop": "#3b4fb8",
+      "skyMid": "#e48a6a",
+      "skyBottom": "#ffd59a",
+      "sun": "#fff0b8",
+      "cloudLight": "#ffe3b8",
+      "cloudShade": "#c77b8f",
+      "haze": "#f6c9a0",
+      "hills": ["#7a6f9c", "#695f8f"],
+      "walls": ["#f6dfb8", "#f2caa0", "#eab89a", "#f0c9c4", "#d6d6e6", "#f7e8c8"],
+      "roofs": ["#a8472f", "#7d3a35", "#4a4a63", "#6a6a86"],
+      "trim": "#fff3dc",
+      "shade": "#3a2a5e",
+      "windowDark": "#3a3366",
+      "windowLight": "#ffd49a",
+      "tree": ["#3f6a3a", "#2f5530", "#6a8a3c"]
+    }
+  }
+}

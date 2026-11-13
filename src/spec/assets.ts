@@ -4,12 +4,17 @@ import { join } from "node:path";
 import { ASSETS_DIR } from "../paths.ts";
 import type { Vec3 } from "./schema.ts";
 
+/** Colours for one time of day. Keys are style-defined; the paint script reads the ones it needs. */
+export type TimePalette = Record<string, string | string[]>;
+
 export interface Style {
-  palette: Record<string, string | string[]>;
+  name?: string;
+  description?: string;
+  /** Palette per time of day (keys match the location's `times`). */
+  palette: Record<string, TimePalette>;
   outlineWidth: number;
   shadingSteps: number;
   grain: number;
-  saturation?: number;
 }
 
 export interface PaintLayer {
@@ -28,7 +33,10 @@ export interface Location {
   kind: "painted" | "set";
   description?: string;
   times: string[];
-  paint: { width: number; height: number; layers: PaintLayer[] };
+  /** Painted locations: where the horizon sits in the final frame (0 top .. 1 bottom) and the lens the layers were placed for. */
+  frame?: { horizon: number; referenceFov: number };
+  /** `horizon` is the painted horizon row as a fraction of the canvas height. */
+  paint: { width: number; height: number; horizon: number; layers: PaintLayer[] };
   set?: { builder: string; params?: Record<string, unknown> };
   marks: Record<string, Mark>;
   paths: Record<string, NamedPath>;
@@ -37,14 +45,25 @@ export interface Location {
 }
 
 export interface Vehicle {
+  name?: string;
+  description?: string;
   model: string;
   scale: number;
-  /** Length in metres after scaling, used for smoke/tyre placement. */
+  /** Size in metres after scaling. */
   length: number;
-  /** Axis the model's nose points along in its own file: "+X", "-X", "+Y", "-Y". */
-  forward: string;
+  width: number;
+  height: number;
+  /** Axis the nose points along after import into Blender (Z up): "+X", "-X", "+Y", "-Y". */
+  forward: "+X" | "-X" | "+Y" | "-Y";
+  wheelRadius: number;
+  /** Name of the body mesh object in the model. */
+  body: string;
   wheels: { front: string[]; rear: string[] };
+  /** Where each rear wheel touches down in model space (for smoke and tyre marks); the rear axle is one merged mesh. */
+  rearWheelPositions: [number, number, number][];
+  /** Slot name -> material name in the model. */
   colourSlots: Record<string, string>;
+  /** Slot name -> hex colour. */
   colors: Record<string, string>;
 }
 

@@ -49,6 +49,11 @@ How to report
 - kritarunner.exe is slow to exit; the adapter kills it 10 s after the result file appears.
 - Rhubarb 1.14: do NOT pass `--quiet` (it also suppresses the JSON on stdout).
 - Piping an installer through `| tail` hides its exit code; redirect to a file and check `$?`.
+- **Blender stamps metadata into PNGs by default** (Date, RenderTime, absolute .blend path), so identical pixels gave different files and the repeatable check failed. `toolscripts/blender/render.py` turns every `use_stamp*` off. If repeatable fails again, compare `harness`'s pixel hash first (the check reports whether pixels or only file bytes differ).
+- First Blender frame of every launch costs ~96 s (EEVEE shader compile); later frames ~4 s at 1080p/16 spp. Render in one process (`animation=True`), never one process per frame.
+- Never start a harness run with a shell `&`, and never run two harness commands that share a stage at once: the cache has per-key locks, but a backgrounded run that outlives its shell is hard to reason about. Use the Bash tool's background mode with a single command.
+- Heredocs in this shell halve backslashes (`\\` became `\`). Write code with Write/Edit, not `cat <<EOF`.
+- `rm -rf` is denied by project settings; the cache code deletes its own temp dirs.
 - Inkscape MSI is extracted with `msiexec /a` (no admin, no registry); files land under `.tools/inkscape/PFiles64/`.
 - Git Bash: pass `MSYS_NO_PATHCONV=1` when a Windows exe takes `/flag` arguments (msiexec).
 

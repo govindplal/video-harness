@@ -1,0 +1,19 @@
+{
+  "name": "coupe-green",
+  "description": "Low-poly fastback coupe (Quaternius, CC0), recoloured green. Measured with toolscripts/blender/inspect_model.py.",
+  "model": "model.glb",
+  "scale": 1.0,
+  "length": 3.93,
+  "width": 1.87,
+  "height": 1.2,
+  "forward": "-Y",
+  "wheelRadius": 0.28,
+  "body": "SportsCar2_Cube.006",
+  "wheels": {
+    "front": ["SportsCar2_FrontLeftWheel_Cylinder.017", "SportsCar2_FrontRightWheel_Cylinder.018"],
+    "rear": ["SportsCar2_BackWheels_Cylinder.002"]
+  },
+  "rearWheelPositions": [[-0.72, 1.321, 0.265], [0.72, 1.321, 0.265]],
+  "colourSlots": { "body": "White", "trim": "Grey", "glass": "Windows" },
+  "colors": { "body": "#2f7048", "trim": "#2a2f3a", "glass": "#1b2a3d" }
+}

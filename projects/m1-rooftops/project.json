@@ -1,0 +1,27 @@
+{
+  "name": "Rooftops drift",
+  "size": "1920x1080",
+  "fps": 24,
+  "style": "anime-afternoon",
+  "seed": 1,
+  "subtitles": [],
+  "music": "none",
+  "shots": [
+    {
+      "id": "rooftops-01",
+      "duration": 5,
+      "location": {
+        "name": "sf-rooftops",
+        "time": "afternoon"
+      },
+      "camera": {
+        "move": "drift",
+        "from": "overlook",
+        "direction": "right",
+        "speed": 1.2,
+        "lens": 50
+      },
+      "effects": {}
+    }
+  ]
+}

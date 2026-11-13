@@ -1,21 +1,22 @@
 # Status (rewrite at every checkpoint; snapshot, not a log; under ~40 lines)
 
-Updated: 2026-11-13 (late evening)
+Updated: 2026-11-14 (morning)
 
 ## Now
-- **M0 done on this machine**: `node src/cli/main.ts doctor` passes all 6 smoke tests (ffmpeg, sox, rhubarb, inkscape, blender, krita). Outputs eyeballed (cube + Krita stroke OK). Not yet verified on a fresh clone.
-- Blender 5.2.4 renders headless with **EEVEE on Intel UHD (OpenGL)**: no CPU fallback needed. Cold first render took 25-100 s (shader compile).
-- Spec layer written (src/spec: fields.ts, schema.ts, validate.ts, assets.ts) but has no tests and no assets yet.
-- Owner is away and pre-approved running M0-M2 unattended ("until weekly quota is 85%"; I cannot see quota, so stop at checkpoints and when work is done). Pacing decision is in CLAUDE.md.
+- **M0 done** (doctor passes 6/6). **M1 done and verified**: `projects/m1-rooftops` -> 5.000 s, 120 frames, 1080p; checks shot-length / frame-not-empty / repeatable all PASS; e2e `tests/e2e/m1.test.ts` 5/5; unit 32/32. Deliverables in `docs/milestones/M1.md` + `projects/m1-rooftops/out/` (mp4, contact.png, report.json). Eyeballed.
+- **M2 started** (not runnable yet): car asset chosen and in repo (`assets/vehicles/coupe-green`: Quaternius CC0 sports car, recorded in assets/ASSETS.md; measured: forward is -Y, wheel radius 0.28, wheel meshes named in vehicle.json). Written but NEVER RUN: `toolscripts/blender/toon.py` (toon material, window-wall material, Freestyle outlines, sun, sky). Nothing else for M2 exists yet.
+- Owner away, pre-approved M0-M2 unattended ("until weekly quota is 85%"; I cannot see quota).
 
-## Next (M1)
-1. Validator unit tests (tests/unit/validate.test.ts).
-2. assets/styles/anime-afternoon, assets/locations/sf-rooftops (painted: sky + rooftops layers).
-3. toolscripts/krita/paint_background.py, toolscripts/blender/{build_set,animate,render}.py, adapters wiring, `validate/paint/build/render/assemble` commands.
-4. M1 acceptance: 5 s, 120 frames, parallax visible; shot-length, empty-frame, repeatable checks pass.
+## Next (M2: car on a 3D street) - do in this order, test each piece with a small render
+1. `assets/locations/hill-street/location.json` (kind "set", ground plane, named paths lane-right / junction-right, marks, drivable polygons) + generic `toolscripts/blender/sets/street.py` builder called from build_set.py for kind "set". Include palette[time] in the build key (src/pipeline/shot.ts shotKeys) and keep render.py's shadow/raytracing off only for painted (unlit) scenes (scene["harness_unlit"]).
+2. `place_assets.py` (import glb, rig root empty `actor.<name>`, wheel pivots re-centred, recolour via colourSlots, toon materials) as stage 3.
+3. `motion.py` + extend `animate.py`: path sampling, drift slip, wheel spin/steer, cameras chase/track/orbit/top-down, smoke puffs (python-keyed billboards), tyre-mark ribbons, motion blur.
+4. `id_pass.py` (Workbench flat object colours, actor / ground / other, effects hidden) in the render stage -> checkers subject-visible and ground-present (config/checks.json has thresholds).
+5. Sound: SoX cue synthesis + ffmpeg mix per shot, music bed "drive-pulse", subtitles + loudnorm in assemble (assemble currently refuses subtitles/music/sound with a clear error).
+6. 3-shot spec (chase, side drift, top-down) + `tests/e2e/m2.test.ts` + `docs/milestones/M2.md`.
 
 ## Open questions / blocked on the user
-- (none yet). Car model for M2 will be a CC0 download recorded in assets/ASSETS.md.
+- None. Reference video (car.mp4) has characters and a painted look; v1 scope is car + street only (spec).
 
-## Learned this project (not yet in CLAUDE.md)
-- (all recorded in CLAUDE.md Gotchas)
+## Learned this project (all recorded in CLAUDE.md Gotchas)
+- Krita modal dialog hang; cache race; Blender PNG metadata; per-layer parallax measuring.

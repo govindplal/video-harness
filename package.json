@@ -8,8 +8,8 @@
   "bin": { "harness": "src/cli/main.ts" },
   "scripts": {
     "harness": "node src/cli/main.ts",
-    "test": "node --test tests/unit/",
-    "test:e2e": "node --test --test-concurrency=1 tests/e2e/",
+    "test": "node --test \"tests/unit/*.test.ts\"",
+    "test:e2e": "node --test --test-concurrency=1 \"tests/e2e/*.test.ts\"",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

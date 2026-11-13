@@ -1,0 +1,35 @@
+{
+  "_comment": "Starting thresholds for the checkers (spec section 8). Tune here after real renders; never loosen one just to make a check pass.",
+  "shotLength": {},
+  "frameNotEmpty": {
+    "sampleEvery": 6,
+    "analysisWidth": 480,
+    "analysisHeight": 270,
+    "minStdDev": 6.0,
+    "voidColor": [0, 255, 128],
+    "missingTextureColor": [255, 0, 255],
+    "colorTolerance": 10,
+    "maxBadPixelFraction": 0.0005
+  },
+  "repeatable": {
+    "frame": "mid"
+  },
+  "subjectVisible": {
+    "minFrameFraction": 0.005,
+    "maxHiddenShotFraction": 0.5
+  },
+  "groundPresent": {
+    "minGroundPixels": 1
+  },
+  "cameraClear": {
+    "minDistanceMetres": 0.1
+  },
+  "motionSpeed": {
+    "maxBackgroundPixelsPerFrame": { "static": 1.0, "drift": 14, "track": 60, "chase": 60, "orbit": 40, "top-down": 40 }
+  },
+  "loudness": {
+    "targetLufs": -14,
+    "toleranceLu": 1,
+    "maxTruePeakDb": -1
+  }
+}

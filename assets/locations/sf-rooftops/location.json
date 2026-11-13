@@ -1,0 +1,27 @@
+{
+  "kind": "painted",
+  "description": "San Francisco hillside overlook: sky, clouds, bay hills and three rows of rowhouses at different depths (painted in Krita, placed in Blender as parallax layers).",
+  "times": ["afternoon", "golden"],
+  "frame": { "horizon": 0.58, "referenceFov": 50 },
+  "paint": {
+    "width": 3072,
+    "height": 1800,
+    "horizon": 0.55,
+    "layers": [
+      { "name": "sky", "type": "sky", "depth": 900 },
+      { "name": "clouds", "type": "clouds", "depth": 700, "params": { "count": 11, "yMin": 0.12, "yMax": 0.5 } },
+      { "name": "hills", "type": "hills", "depth": 450, "params": { "baseY": 0.57, "amplitude": 0.07, "haze": 0.5 } },
+      { "name": "city-far", "type": "rowhouses", "depth": 220,
+        "params": { "baseY": 0.6, "slope": 0.03, "minW": 40, "maxW": 74, "minH": 70, "maxH": 140, "haze": 0.42, "windows": false, "trees": 0.0 } },
+      { "name": "rooftops-mid", "type": "rowhouses", "depth": 90,
+        "params": { "baseY": 0.69, "slope": 0.05, "minW": 92, "maxW": 150, "minH": 150, "maxH": 250, "haze": 0.18, "windows": true, "trees": 0.25 } },
+      { "name": "rooftops-near", "type": "rowhouses", "depth": 35,
+        "params": { "baseY": 0.9, "slope": 0.07, "minW": 170, "maxW": 270, "minH": 260, "maxH": 430, "haze": 0.0, "windows": true, "trees": 0.2 } }
+    ]
+  },
+  "marks": {
+    "overlook": { "position": [0, 0, 0], "target": [0, 1, 0] }
+  },
+  "paths": {},
+  "drivable": []
+}
