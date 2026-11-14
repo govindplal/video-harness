@@ -14,17 +14,19 @@ export const repeatable: Checker = async ({ project, art, config, preview }) => 
   const frame = config.repeatable.frame === "mid" ? Math.max(1, Math.round(art.render.frames / 2)) : Number(config.repeatable.frame);
   const name = `frame_${String(frame).padStart(4, "0")}.png`;
   const scale = preview ? project.render.previewScale : 1;
-  const key = hashObj({ check: "repeatable", render: art.keys.render, frame, preview });
+  // Method 2: render frames 1..N in order in each process, as the full render does, so both runs follow the same
+  // path through the shot's state. A lone frame N rendered by itself gave different pixels from the stored frame N.
+  const key = hashObj({ check: "repeatable", method: "sequential", render: art.keys.render, frame, preview });
 
   const run = await runStage<RepeatMeta>("check-repeatable", key, async (dir) => {
+    const frames = Array.from({ length: frame }, (_, i) => i + 1);
     const job = (outDir: string): Record<string, unknown> => ({
-      blend: art.animateBlend, outDir, engine: resolveEngine(project), samples: project.render.samples, scale, frames: [frame],
+      blend: art.animateBlend, outDir, engine: resolveEngine(project), samples: project.render.samples, scale, frames,
     });
-    // Two separate Blender processes, in parallel: independent runs, half the wall time.
-    await Promise.all([
-      blender.runScript("render", job(join(dir, "a")), { timeoutMs: 30 * 60_000 }),
-      blender.runScript("render", job(join(dir, "b")), { timeoutMs: 30 * 60_000 }),
-    ]);
+    // Two separate Blender processes, one after the other. Run in parallel they share the Intel GPU and each slowed
+    // from ~13 s to ~95 s per frame, so a sequential check of frames 1..30 timed out.
+    await blender.runScript("render", job(join(dir, "a")), { timeoutMs: 30 * 60_000 });
+    await blender.runScript("render", job(join(dir, "b")), { timeoutMs: 30 * 60_000 });
     const hashA = hashFile(join(dir, "a", name));
     const hashB = hashFile(join(dir, "b", name));
     let storedMatches: boolean | null = null;

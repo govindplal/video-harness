@@ -54,6 +54,9 @@ How to report
 - Never start a harness run with a shell `&`, and never run two harness commands that share a stage at once: the cache has per-key locks, but a backgrounded run that outlives its shell is hard to reason about. Use the Bash tool's background mode with a single command.
 - Heredocs in this shell halve backslashes (`\\` became `\`). Write code with Write/Edit, not `cat <<EOF`.
 - `rm -rf` is denied by project settings; the cache code deletes its own temp dirs.
+- **Blender 3D-set gotchas (M2).** Object Info Color/Alpha and Attribute(Object) custom props were unreliable for per-object alpha in EEVEE: fade by scale with a constant-alpha material. Track-To billboards did not render: key rotation per frame. Freestyle draws lines through geometry below the ground: make building boxes follow the ground plane. Freestyle lineset attr is `collection_negation = "EXCLUSIVE"`.
+- **Intel GPU limits.** Two Blender processes at once slow each other ~7x (13 s to 95 s per frame): run them one after another. The Intel OpenGL driver can crash (0xC0000005 in `ig9icd64.dll`) during Blender's exit after the result is written; the adapter keeps a result only if the log shows "Blender quit" and a fresh result file exists.
+- The repeatable check renders frames 1..N in order, not frame N alone: a lone frame differed from the full render's frame by 1/255 on a couple of pixels.
 - Inkscape MSI is extracted with `msiexec /a` (no admin, no registry); files land under `.tools/inkscape/PFiles64/`.
 - Git Bash: pass `MSYS_NO_PATHCONV=1` when a Windows exe takes `/flag` arguments (msiexec).
 

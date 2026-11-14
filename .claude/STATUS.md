@@ -3,18 +3,16 @@
 Updated: 2026-11-14
 
 ## Now
-- **M0 done, M1 done** (committed b4c4c11). M1 deliverables in docs/milestones/M1.md.
-- **M2 code complete, not yet rendered/verified.** Written and smoke-tested with single frames (dev-street project): street set builder (sets/street.py), car placement (place_assets.py), animate.py (drift, chase/track/orbit/top-down cameras, smoke puffs, tyre marks, speed lines, motion blur), ID pass (id_pass.py), checkers subject-visible/ground-present (src/checkers/idpass.ts), sound (src/adapters/audio.ts, src/pipeline/sound.ts), assemble with music bed, subtitles, loudnorm. Spec: projects/m2-street (3 shots, 6.5 s). e2e: tests/e2e/m2.test.ts (never run).
-- **The full M2 render was killed by Claude Code for low system memory** (not a harness error). Cache state: chase-01 animated, drift-02/top-03 built. Rerun `node src/cli/main.ts render m2-street` (resumes from cache) only when memory allows; consider closing other apps first.
-- Measured: set renders ~13 s/frame at 1080p/8 spp + ~100 s first-frame compile per Blender launch (OpenGL and Vulkan alike; --gpu-compilation-subprocesses does not help).
+- **M0 done, M1 done** (b4c4c11), **M2 done and verified.** Notes: docs/milestones/M1.md, docs/milestones/M2.md.
+- M2: `render`, `check` (15/15 pass), `assemble` (156 frames, 6.50 s, -13.7 LUFS) and tests/e2e/m2.test.ts (4/4) all run; 32 unit tests pass; typecheck clean. Video: projects/m2-street/out/m2-street.mp4, contact sheet out/contact.png.
+- Repeatable check now renders frames 1..N in order, one Blender process after the other; adapter tolerates the Intel driver's crash at exit (see CLAUDE.md gotchas).
+- Cold render is about an hour on this machine (13 s/frame + ~100 s compile per launch).
 
 ## Next
-1. `render m2-street`, then `check`, `assemble`, `node --test tests/e2e/m2.test.ts`; eyeball contact.png and the mp4; write docs/milestones/M2.md; commit.
-2. Re-run M1 e2e (render/build scripts changed, so M1 re-renders ~12 min).
-3. Smoke puffs: verify the 0.2 disc threshold looks round (last frame showed square puffs at 0.39).
+1. Re-run M1 e2e (render/build scripts changed since it passed; ~12 min re-render) and M0 e2e.
+2. **Review gate:** M3 starts only after the owner has reviewed M2 (only M0-M2 were pre-approved unattended).
+3. M3: camera-clear, motion-speed, loudness checkers; `harness clean`; preview polish.
 
-## Gotchas found in M2 (add to CLAUDE.md)
-- Object Info Color/Alpha fades and Attribute(Object) custom props were unreliable for per-object alpha in EEVEE here; smoke now fades by scale with constant-alpha material.
-- Track-To constraint billboards did not render; puffs are now keyed to face the camera per frame.
-- Freestyle draws lines through geometry below the ground: building boxes now follow the ground plane.
-- Freestyle lineset attr is `collection_negation = "EXCLUSIVE"` (not exclude_collection).
+## Known weak spots
+- Looks flat toon, not painted like car.mp4; no characters until M5.
+- Smoke fades by scale, not alpha.
