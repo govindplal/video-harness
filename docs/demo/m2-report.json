@@ -1,0 +1,167 @@
+{
+  "project": "m2-street",
+  "ok": true,
+  "preview": false,
+  "shots": [
+    {
+      "id": "chase-01",
+      "ok": true,
+      "checks": [
+        {
+          "check": "shot-length",
+          "shot": "chase-01",
+          "pass": true,
+          "reason": "60 frames rendered and encoded (2.5 s x 24 fps)",
+          "measured": {
+            "rendered": 60,
+            "encoded": 60,
+            "expected": 60
+          }
+        },
+        {
+          "check": "frame-not-empty",
+          "shot": "chase-01",
+          "pass": true,
+          "reason": "11 frames sampled: min std dev 45.1 (>= 6), worst void/missing-texture 0.000% (<= 0.05%)",
+          "measured": {
+            "sampled": 11,
+            "minStdDev": 45.14,
+            "maxBadFraction": 0
+          }
+        },
+        {
+          "check": "subject-visible",
+          "shot": "chase-01",
+          "pass": true,
+          "reason": "\"car\" visible in 60/60 frames, largest 10.9% (needs >= 0.5% for over half the shot)"
+        },
+        {
+          "check": "ground-present",
+          "shot": "chase-01",
+          "pass": true,
+          "reason": "\"car\": ground beneath in all 59 judged frames"
+        },
+        {
+          "check": "repeatable",
+          "shot": "chase-01",
+          "pass": true,
+          "reason": "frame 30 rendered twice gives identical files (54295523de24); also matches the stored frame",
+          "measured": {
+            "frame": 30,
+            "hashA": "54295523de242334a0cd15c75ebad573d3bab60738b0bb2fe59c12c123970bc2",
+            "hashB": "54295523de242334a0cd15c75ebad573d3bab60738b0bb2fe59c12c123970bc2",
+            "equal": true,
+            "storedMatches": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "drift-02",
+      "ok": true,
+      "checks": [
+        {
+          "check": "shot-length",
+          "shot": "drift-02",
+          "pass": true,
+          "reason": "48 frames rendered and encoded (2 s x 24 fps)",
+          "measured": {
+            "rendered": 48,
+            "encoded": 48,
+            "expected": 48
+          }
+        },
+        {
+          "check": "frame-not-empty",
+          "shot": "drift-02",
+          "pass": true,
+          "reason": "9 frames sampled: min std dev 49.9 (>= 6), worst void/missing-texture 0.000% (<= 0.05%)",
+          "measured": {
+            "sampled": 9,
+            "minStdDev": 49.91,
+            "maxBadFraction": 0
+          }
+        },
+        {
+          "check": "subject-visible",
+          "shot": "drift-02",
+          "pass": true,
+          "reason": "\"car\" visible in 48/48 frames, largest 15.2% (needs >= 0.5% for over half the shot)"
+        },
+        {
+          "check": "ground-present",
+          "shot": "drift-02",
+          "pass": true,
+          "reason": "\"car\": ground beneath in all 48 judged frames"
+        },
+        {
+          "check": "repeatable",
+          "shot": "drift-02",
+          "pass": true,
+          "reason": "frame 24 rendered twice gives identical files (2921ec08a0e5); also matches the stored frame",
+          "measured": {
+            "frame": 24,
+            "hashA": "2921ec08a0e5560226329c21d92f90d3afd124b94c136523896de40eb5d08aae",
+            "hashB": "2921ec08a0e5560226329c21d92f90d3afd124b94c136523896de40eb5d08aae",
+            "equal": true,
+            "storedMatches": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "top-03",
+      "ok": true,
+      "checks": [
+        {
+          "check": "shot-length",
+          "shot": "top-03",
+          "pass": true,
+          "reason": "48 frames rendered and encoded (2 s x 24 fps)",
+          "measured": {
+            "rendered": 48,
+            "encoded": 48,
+            "expected": 48
+          }
+        },
+        {
+          "check": "frame-not-empty",
+          "shot": "top-03",
+          "pass": true,
+          "reason": "9 frames sampled: min std dev 27.1 (>= 6), worst void/missing-texture 0.000% (<= 0.05%)",
+          "measured": {
+            "sampled": 9,
+            "minStdDev": 27.05,
+            "maxBadFraction": 0
+          }
+        },
+        {
+          "check": "subject-visible",
+          "shot": "top-03",
+          "pass": true,
+          "reason": "\"car\" visible in 48/48 frames, largest 2.9% (needs >= 0.5% for over half the shot)"
+        },
+        {
+          "check": "ground-present",
+          "shot": "top-03",
+          "pass": true,
+          "reason": "\"car\": ground beneath in all 48 judged frames"
+        },
+        {
+          "check": "repeatable",
+          "shot": "top-03",
+          "pass": true,
+          "reason": "frame 24 rendered twice gives identical files (daf69053a793); also matches the stored frame",
+          "measured": {
+            "frame": 24,
+            "hashA": "daf69053a79303d2f2eb18530f5e862a460ff901125c9dd8101182b4ef9fd52f",
+            "hashB": "daf69053a79303d2f2eb18530f5e862a460ff901125c9dd8101182b4ef9fd52f",
+            "equal": true,
+            "storedMatches": true
+          }
+        }
+      ]
+    }
+  ],
+  "contactSheet": "m2-contact.png"
+}

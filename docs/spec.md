@@ -1,6 +1,6 @@
 # Anime Video Harness: Build Spec
 
-Source: build spec by the project owner, 2026-11-13. Reference video the owner wants to approach: `C:/Users/govin/Downloads/car.mp4` (53 s, painted-anime look, green coupe drifting through San Francisco hill streets; characters are out of scope until M5).
+Source: build spec by the project owner, 2026-11-13. Reference video the owner wants to approach: a 53 s painted-anime clip (green coupe drifting through San Francisco hill streets; not included in this repo). Characters are out of scope until M5.
 
 ## 1. Goal and scope
 A command-line harness that turns a shot spec (JSON) into a finished anime-style video by driving Blender, Krita and ffmpeg with no screen attached. The AI's only job is to write and revise the spec; ordinary code does everything else.
